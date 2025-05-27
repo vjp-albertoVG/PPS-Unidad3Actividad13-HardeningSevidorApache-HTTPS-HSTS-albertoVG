@@ -1321,8 +1321,6 @@ Podemos ver el estado de los contenedores con `docker-compose ps`.
 
 Podemos mover esos archivos de configuración a otro sitio, levantar el escenario o apache de nuevo y volver a restaurar el archivo a su sitio después de levantar el módulo SSL y si queremos desactivamos el sitio por defecto `a2dissite 000-default.conf`.
 
-![](images/hard14.png)
-
 
 ## ENTREGA
 
