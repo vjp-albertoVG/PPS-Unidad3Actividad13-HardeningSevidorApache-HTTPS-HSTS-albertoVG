@@ -416,17 +416,16 @@ En esta ocasión he elegido [Duck DNS](https://www.duckdns.org/).
 
 - Introducimos el nombre de dominio que queremos y comprobamos que está disponible. Lógicamente, nuestro nombre de dominio será un subdominio de Duck DNS. En mi caso he generado `ppsiesvalledeljerteplasencia.duckdns.org`. Además la asociará con la dirección ip que detecta en ese momento. 
 
-
-![](images/hard11.png)
+![](images/Imagen11.png)
 
 - Ahora que tenemos un nombre de dominio registrado, debemos modificar el `ServerName` del fichero de configuración de nuestro host virtual `/etc/apache2/sites-available/default-ssl.conf` o el fichero de configuración del host virtual que deseemos.
 
-![](images/hard13.png)
+![](images/Imagen12.png)
 
 
 - Para poder acceder a ella tendremos que añadirla en nuestro ficherto /etc/hosts, y abrir posteriormente los puertos de nuestro router, pera ya lo veremos más adelante. Lógicamente, esto último no lo podemos hacer en nuestro centro, tendremos que limitarlo a hacerlo en su caso en nuestra casa.
  `
-![](images/hard12.png)
+![](images/Imagen13.png)
 
 Podemos comprobar que funciona todo con el siguiente comando:
 
@@ -442,13 +441,15 @@ Una vez registrado el dominio, procedemos con la obtención del certificado:
 apt update
 apt install certbot python3-certbot-apache
 ~~~
-
+![](images/Imagen14.png)
 
 **🔑 Paso 3: Obtener el certificado SSL**
 
 ~~~
 certbot --apache
 ~~~
+![](images/Imagen15.png)
+
 Durante el proceso:
 
 - Se verificará que el dominio apunte correctamente al servidor.
@@ -470,6 +471,7 @@ Accede a tu sitio en el navegador usando: `https://tudominio.com`
 
 Deberías ver el candado que indica que la conexión es segura.
 
+![](images/Imagen16.png)
 
 **🔄 Paso 5: Renovación automática del certificado**
 
@@ -480,7 +482,7 @@ Puedes probarla con:
 ~~~
 sudo certbot renew --dry-run
 ~~~
-
+![](images/Imagen17.png)
 
 **🛠 Paso 6: Revisar configuración SSL (opcional)**
 
@@ -529,7 +531,7 @@ Tienes dos opciones:
     # Configuración adicional para HTTPS
 </VirtualHost>
 ~~~
-
+![](images/Imagen18.png)
 
 ** Opción b) Usar `RewriteEngine` para mayor flexibilidad**
 
@@ -571,6 +573,7 @@ También asegúrate que el módulo `mod_rewrite` esté habilitado:
 a2enmod rewrite
 service apache2 reload
 ```
+![](images/Imagen19.png)
 
 ---
 
@@ -590,6 +593,7 @@ una aplicación web para evitar ataques como XSS.
 ```
 Por ejemplo, de esta forma solo permitimos la carga de contenidos de nuestro sitio, ningúno de servidores externos.
 
+![](images/Imagen20.png)
 
 ---
 
@@ -602,6 +606,7 @@ Para reforzar aún más tu HTTPS, puedes agregar esta cabecera de seguridad (por
 ```apache
 Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
 ```
+![](images/Imagen21.png)
 
 > Esto obliga a los navegadores a recordar usar siempre HTTPS, protegiendo de ataques de tipo *downgrade*.
 
@@ -630,7 +635,7 @@ Para comprobar si hay exposición de información sensible en nuestro servidor e
 curl -I http://pps.edu
 ```
 
-![](images/hard15.png)
+![](images/Imagen22.png)
 
 Si la respuesta contiene:`Server: Apache/2.4.41 (Ubuntu)` y/o `X-Powered-By: PHP/7.4.3` el sistema nos está ofreciendo información sobre las versiones de Apache y PHP.
 
@@ -646,7 +651,7 @@ Las directivas pueden estar en distintos archivos según la distribución y la c
 grep -Ri "ServerSignature\|ServerTokens" /etc/apache2/
 ```
 
-![](images/hard16.png)
+![](images/Imagen23.png)
 
 En los sistemas que usan `Debian/Ubuntu` como base, las directivas `ServerSignature` y `ServerTokens` se configuran en el archivo `/etc/apache2/conf-available/security.conf`.
 
@@ -657,12 +662,12 @@ archivo ` /etc/apache2/conf-available/security.conf`
 ServerSignature Off
 ServerTokens Prod
 ```
-![](images/hard17.png)
+![](images/Imagen24.png)
 
 >
 > La directiva `ServerTokens` en `Apache` controla cuánta información sobre el servidor se incluye en las cabeceras de respuesta HTTP.
 >
-> ![](images/hard18.png)
+![](images/Imagen25.png)
 
 >
 >La directiva ServerSignature controla si Apache muestra información sobre el servidor en las páginas de error, listados de directorios y otras respuestas generadas automáticamente.
@@ -683,13 +688,14 @@ php --ini | grep "Loaded Configuration File"
 
 La salida mostrará la ruta, por ejemplo: `Loaded Configuration File: /etc/php/8.2/apache2/php.ini`
 
-![](images/hard19.png)
+![](images/Imagen26.png)
 
 Si se tienen varias versiones de PHP, verificar cuál está en uso con:
 
 ```bash 
 php -v
 ```
+![](images/Imagen27.png)
 
 Editar el archivo de configuración de `PHP` correspondiente. En nuestro caso:
 
@@ -701,6 +707,8 @@ nano /usr/local/etc/php/php.ini
 [Aquí tienes el archivo de configuración de php](files/php.ini.seguro). Recuerda hacer una copia del anterior
 
 - Hemos cambiado `expose_php = On` a `expose_php = Off` y reiniciado los servicios:
+
+![](images/Imagen28.png)
 
 ```bash 
 sudo systemctl restart apache2
@@ -715,22 +723,19 @@ php-fpm status
 ```
 Si está instalado te mostrará su estado, si no lo está, mostrará el mensaje de "Comando no encontrado".
 
-![](images/hard20.png)
-
 ```bash
 service php8.2-fpm restart
 ```
 
 > Con estas modificaciones, la respuesta del servidor a `curl -I http://pps.edu` ya no debería mostrar la versión de Apache ni de PHP.
 
+![](images/Imagen29.png)
 
 ### Otras mitigaciones para Configuración Insegura y Mejores Prácticas
 
 **Deshabilitar listados de directorios**
 
 Nos encontramos ante un fallo de seguridad cuando al introducir la ruta a una carpeta del servidor web que no contiene un archivo `index.html`, se nos muestran los archivos presentes en ella. 
-
-![](images/hard24.png)
 
 Para la prueba, crea una carpeta de ejemplo e introduce en ella dos archivos vacíos:
 
@@ -739,7 +744,7 @@ mkdir /var/www/html/ejemplo
 touch /var/www/html/ejemplo/ejemplo1.txt
 touch /var/www/html/ejemplo/ejemplo2.txt
 ```
- 
+![](images/Imagen30.png)
 
 Para deshabilitar que se puedan listar los directorios si no hay un index utilizamos en los directorios deseados `Options Indexes`:
 
@@ -754,11 +759,10 @@ Dependiendo de donde nos interese podemos aplicar esta configuración en:
 
 - Par todo el servidor: `/etc/apache2/apache2.conf`
 
-![](images/hard21.png)
+![](images/Imagen31.png)
 
 - Para uno o varios sitios virtuales: `/etc/apache2/sites-available/XXXXX.conf`
 
-![](images/hard22.png)
 
 - Para uno o varios directorio en configuración "htaccess": `.htaccess`
 
@@ -781,7 +785,7 @@ Dependiendo de donde nos interese podemos aplicar esta configuración en:
 
 Después de aplicar esa `Options` si queremos acceder a una carpeta que no contiene ningún `index.html` nos dará un aviso de permisos y no se muestra el contenido:
 
-![](images/hard25.png)
+![](images/Imagen32.png)
 
 
 
@@ -789,7 +793,7 @@ Después de aplicar esa `Options` si queremos acceder a una carpeta que no conti
 
 Por defecto, en el archivo de configuración de `Apache`  tienen permiso de lectura todos los usuarios:
 
-![](images/hard26.png)
+![](images/Imagen33.png)
  
 Cambiamos los permisos por quitando los permisos de lectura del grupo `Otros`:
 
@@ -853,8 +857,6 @@ Header always set X-Frame-Options "DENY"
 Header always set X-XSS-Protection "1; mode=block"
 Header always set X-Content-Type-Options "nosniff"
 ```
-
-![](images/hard27.png)
 
 Las inclusión de las diferentes cabeceras tienen las siguientes consecuencias: 
 
@@ -921,7 +923,7 @@ archivo `/etc/apache2/etc/sites-available/default-ssl.conf`
     </IfModule>
 </VirtualHost>
 ```
-
+![](images/Imagen34.png)
 
 ## 🔐 10. Configuración de `mod_security` con reglas OWASP CRS en Apache
 
@@ -957,7 +959,7 @@ Introduce  en el campo de usuario o contraseña el siguiente código:
 ' OR '1'='1' -- -
 ```
 
-![](images/hard30.png)
+![](images/Imagen35.png)
 
 
 Aparecerán los usuarios y contraseñas almacenados en el sistema.
@@ -971,15 +973,12 @@ Introduce  en el campo de usuario o contraseña el siguiente código:
 <script>alert('XSS ejecutado!')</script>
 ```
 
-![](images/hard29.png)
+![](images/Imagen36.png)
 
 
 - [Path Traversal](https://github.com/jmmedinac03vjp/PPS-Unidad3Actividad8-LFI)
 
 Accede a la página <http://localhost/LFI/lfi.php?file=../../../../etc/passwd>
-
-![](images/hard28.png)
-
 
 
 🛡 **¿Cómo funciona?**
@@ -1024,6 +1023,7 @@ Para instalar la libreria de Apache `ModSecurity` ejecuta en línea de comandos:
 apt update
 apt install libapache2-mod-security2
 ```
+![](images/Imagen37.png)
 
 Esto instala `mod_security` y lo habilita como módulo de Apache.
 
@@ -1042,8 +1042,7 @@ Asegúrate de que esté en modo "detección" primero (fase de pruebas):
 ```apache
 SecRuleEngine DetectionOnly
 ```
-
-![](images/hard31.png)
+![](images/Imagen38.png)
 
 
 > 🔁 Más adelante puedes cambiar a `On` para bloquear tráfico malicioso real.
@@ -1061,7 +1060,7 @@ apachectl -M | grep security
 ```
 Nos debe de dar como resultado: ` security2_module (shared)`
 
-![](images/hard32.png)
+![](images/Imagen39.png)
 
 ---
 
@@ -1075,6 +1074,7 @@ git clone https://github.com/coreruleset/coreruleset.git
 cd coreruleset
 cp crs-setup.conf.example crs-setup.conf
 ```
+![](images/Imagen40.png)
 
 ---
 
@@ -1093,7 +1093,7 @@ apache2ctl -t -D DUMP_INCLUDES|grep modsecurity
 ```
 Si nos muestran diferentes módulos de reglas, están habilitados y no es necesario crear un archivo como security-crs.conf a menos que quieras una configuración personalizada o usas otra ubicación.
 
-![](images/hard33.png)
+![](images/Imagen41.png)
 
 **IMPORTANTE¡¡ Solo en el caso de que no te aparezcan cargados los módulos**, edita el archivo de configuración de Apache para que cargue las reglas. Puedes hacer esto en un archivo `.conf` dentro de `/etc/apache2/conf-available/`:
 
@@ -1108,7 +1108,7 @@ Y añade lo siguiente:
 IncludeOptional /etc/modsecurity/coreruleset/crs-setup.conf
 IncludeOptional /etc/modsecurity/coreruleset/rules/*.conf
 ```
-
+![](images/Imagen42.png)
 
 Luego, habilita el archivo de configuración y reinicia el servicio:
 
@@ -1139,6 +1139,7 @@ Cambia:
 ```apache
 SecRuleEngine On
 ```
+![](images/Imagen43.png)
 
 Esto hará que el WAF **bloquee solicitudes peligrosas automáticamente**.
 
@@ -1152,7 +1153,7 @@ http://localhost/LFI/lfi.php?file=../../../../etc/passwd
 
 El acceso debería ser bloqueado con un **Forbidden** (si está en modo "On") o logueado (si está en "DetectionOnly").
 
-![](images/hard34.png)
+![](images/Imagen44.png)
 
 ---
 
@@ -1165,8 +1166,7 @@ Así si hemos intentado hacer el ataque XSS anteriormente, podremos encontrar in
 ```bash
 cat /var/log/apache2/modsec_audit.log
 ```
-
-![](images/hard35.png)
+![](images/Imagen45.png)
 
 También puede usar el `error.log` de Apache para errores graves.
 
