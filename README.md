@@ -47,6 +47,7 @@ Vamos realizando operaciones:
 ~~~
 docker-compose up -d
 ~~~
+![](images/Imagen1.png)
 
 Para asegurarnos que no tenemos ninguna seguridad implementada descarga tus archivos de configuración:
 
@@ -109,9 +110,6 @@ En el directorio `/etc/apache2/mods-enabled` están los módulos que tenemos ins
 
 Podemos ver los módulos que tenemos instalados con el comando `apache2ctl -t -D DUMP_MODULES`.
 
-![](images/hard1.png)
-
-
 Para añadir la funcionalidad de un módulo a nuestro servidor Apache, utilizamos `a2enmod nombre_modulo`(a2enmod:Apache2 enable module). Por ejemplo para habilitar el módulo ssl utilizaríamos `a2enmod ssl`.
 
 Para deshabilitar la funcionalidad de un módulo lo desinstalamos con `a2dismod nombre_modulo`(a2dismod: Apache2 disable module).
@@ -125,8 +123,6 @@ Al igual que con los **módulos** tenemos dos directorios con los archivos de co
 Para habilitar un sitio utilizamos el comando `a2ensite Archivo.conf`. Siendo Archivo.conf la configuración del sitio guardada en el directorio `/etc/apache2/sites-available/`.
 
 Cuando habilitamos un directorio con `a2ensite`(Apache2 enable site), se crea un enlace que apunta al archivo de configuración situado en `/etc/apache2/sites-available`.
-
-![](images/hard2.png)
 
 ---
 
@@ -148,6 +144,7 @@ Vamos a modificar el  archivo`/etc/apache2/sites-available/000-default.conf`. Lo
 </VirtualHost>
 
 ~~~
+![](images/Imagen2.png)
 
 Donde podemos ver que encontramos las diferentes variable:
 
@@ -193,8 +190,6 @@ Este fichero está en /etc/hosts.
 
 En los casos asociamos los nombres de los host virtuales a localhost tal y como se muestra en la imagen.
 
-![](images/hard3.png)
-
 Además en el archivo `/etc/hosts` vemos cómo dirección de nuestro servidor apache. En nuestro caso `172.20.0.5`
 
 No obstante puedes consultarlo en docker con el comando: 
@@ -205,7 +200,7 @@ docker inspect lamp-php83 |grep IPAddress
 
 Si queremos acceder a este servidor virtual desde otros equipos de la red, o si estamos utilizando docker y queremos acceder a ellos desde nuestro navegador, tenemos que añadir en el /etc/hosts una linea que vincule la dirección ip con el nombre del servidor:
 
-![](images/hard4.png)
+![](images/Imagen3.png)
 
 
 
@@ -223,7 +218,7 @@ Ya podemos acceder a nuestro servidor desde:
 http://www.pps.edu/
 ~~~
 
-![](images/hard5.png)
+![](images/Imagen4.png)
 
 ---
 
@@ -258,6 +253,7 @@ Creamos el archivo de configuración del sitio:
 </VirtualHost>
 
 ~~~
+![](images/Imagen5.png)
 
 Finalmente habilitamos el sitio y recargamos el servicio
 
@@ -267,7 +263,7 @@ service apache2 reload
 ```
 Accedemos desde `http://www.hacker.edu`
 
-![](images/hard6.png)
+![](images/Imagen6.png)
 
 
 ---
@@ -301,6 +297,8 @@ cd /etc/apache2/ssl
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out localhost.crt
 ~~~
 
+![](images/Imagen7.png)
+
 **Explicación de los parámetros del comando:**
 
 - `req`: inicia la generación de una solicitud de certificado.
@@ -313,11 +311,9 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out l
 
 Durante la ejecución del comando, se te solicitará que completes datos como país, nombre de organización, y nombre común (dominio).
 
-![](images/hard7.png)
-
 Vemos como se han creado el certificado y la clave pública
 
-![](images/hard8.png)
+![](images/Imagen8.png)
 
 
 **Paso 2.Configurar Apache para usar HTTPS**
@@ -366,6 +362,7 @@ Lo modificamos y dejamos así:
     DocumentRoot /var/www/html
 </VirtualHost>
 ~~~
+![](images/Imagen9.png)
 
 Date cuenta que hemos creado un **servidor virtual** con nombre **www.pps.edu**. A partir de ahora tendremos que introducir en la barra de dirección del navegador `https://www.pps.edu` en vez de `https://localhost`.
 
@@ -387,6 +384,8 @@ service apache2 reload
 Añadimos nuestro dominio en el archivo /etc/hosts de nuestra máquina anfitriona para que resulva bien los dns. [Lo tienes explicado en una sección anterior(## Resolución_de_ nombres:_dns_o_fichero_**/etc/hosts**)
 
 Ahora el servidor soportaría **HTTPS**. Accedemos al servidor en la siguiente dirección: `https://www.pps.edu`
+
+![](images/Imagen10.png)
 
 
 ### Método 2: Obtener Certificado en un servidor Linux usando Let's Encrypt y Certbot**
